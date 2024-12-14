@@ -64,38 +64,31 @@ export default function EditProduct() {
           itemImages: product.images?.map((image) => ({ name: image })) || [],
 
         }));
-
+console.log("hihihi",apiVariants)
         setVariants(
           apiVariants.map((variant: any) => ({
-            // color: variant.color || '#fff', // Default to white if color is missing
-            // basePrice: variant.price || 'N/A',
-            // sellingPrice: variant.discounted_price || 'N/A',
-            // size: variant.size || 'N/A',
-            // style: variant.style || 'N/A',
-            // capacity: variant.capacity || 'N/A',
-            // weight: variant.weight || 'N/A',
-            // stock: variant.stock,
+            id: variant.id,
             sellingPrice: variant.discounted_price || 'N/A',
             basePrice: variant.price || 'N/A',
-            stock_number: variant.trackStockNumber,
+            stock_number: variant.track_stock_number,
             track_stock: variant.track_stock,
-            barcode: variant.barcode, // Add barcode if available
-            qr_code: variant.qr_code, // Add qr code if available
-            serial_number: variant.serial_number, // Add serial number if available
-            size: variant.size,
-            gender: variant.gender,
-            discount: variant.discount_value,
-            start_date: variant.start_date,
-            end_date: variant.end_date,
-            material: variant.material,
-            weight: variant.weight,
-            style: variant.style,
-            color: variant.color,
-            capacity: variant.capacity,
-            stock: variant.stock,
-            background_image: "", // You can add background image for variants if necessary
+            barcode: variant.barcode || '', // Optional: Default empty string
+            qr_code: variant.qr_code || '', // Optional: Default empty string
+            serial_number: variant.serial_number || '', // Optional: Default empty string
+            size: variant.size || 'N/A',
+            gender: variant.gender || 'N/A',
+            discount: variant.discount_value || null,
+            start_date: variant.start_date || null,
+            end_date: variant.end_date || null,
+            material: variant.material || 'N/A',
+            weight: variant.weight || 'N/A',
+            style: variant.style || 'N/A',
+            color: variant.color || 'N/A',
+            capacity: variant.capacity || 'N/A',
+            stock: variant.stock || 0,
+            background_image: variant.background_image || '', 
           })))
-        
+        console.log("hhh",variants)
 
       })
       .catch((error) => {
@@ -220,6 +213,7 @@ export default function EditProduct() {
         background_image: backgroundImageBase64,
         images: itemImagesBase64, // All item images in base64 format
         variants: variants.map((variant: any) => ({
+          id:variant.id,
           track_stock: variant.isTracking,
           stock_number: variant.trackStockNumber,
           barcode: variant.barcode, // Add barcode if available
