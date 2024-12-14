@@ -1,38 +1,52 @@
-// import { useAppSelector } from '../store/hooks';
+useEffect(() => {
+  const fetchPackageData = async () => {
+    try {
+      const response = await fetch(`https://api.tamkeen.center/api/packages/${paymentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch package data');
+      }
 
-// const Dashboard = () => {
-//   const token = useAppSelector((state) => state.auth.token);
+      const data = await response.json();
+      
+      setFormData({
+        packageName: data.name || '',
+        totalPrice: data.total_price || '',
+        profitLevel1: data.profit_percentage_in_level_1 || '',
+        profitLevel2: data.profit_percentage_in_level_2 || '',
+        profitLevel3: data.profit_percentage_in_level_3 || '',
+        numberOfUses: data.number_of_uses || '',
+        bImages: data.images.map((img: any) => img.image) || [],
+        images: [], // Image upload remains empty unless user uploads
+        products: data.items.map((item: any) => ({
+          id: item.product.id,
+          name: item.product.name,
+          price: parseFloat(item.product.price),
+          size: item.product.size,
+          color: item.product.color,
+          style: item.product.style,
+          capacity: item.product.capacity,
+          material: item.product.material,
+          weight: item.product.weight,
+        })) || [],
+        selectedProducts: data.items.map((item: any) => ({
+          id: item.product.id,
+          name: item.product.name,
+          price: parseFloat(item.price),
+          quantity: item.quantity,
+          isEditing: false, // Initial state of editing
+        })) || [],
+      });
 
-//   return <div>Your token: {token}</div>;
-// };
+    } catch (error) {
+      console.error('Error fetching package data:');
+    }
+  };
 
-<Dialog>
-<DialogTrigger asChild>
-  <Button variant="outline">Edit Profile</Button>
-</DialogTrigger>
-<DialogContent className="sm:max-w-[425px]">
-  <DialogHeader>
-    <DialogTitle>Edit profile</DialogTitle>
-    <DialogDescription>
-      Make changes to your profile here. Click save when you're done.
-    </DialogDescription>
-  </DialogHeader>
-  <div className="grid gap-4 py-4">
-    <div className="grid grid-cols-4 items-center gap-4">
-      <Label htmlFor="name" className="text-right">
-        Name
-      </Label>
-      <Input id="name" value="Pedro Duarte" className="col-span-3" />
-    </div>
-    <div className="grid grid-cols-4 items-center gap-4">
-      <Label htmlFor="username" className="text-right">
-        Username
-      </Label>
-      <Input id="username" value="@peduarte" className="col-span-3" />
-    </div>
-  </div>
-  <DialogFooter>
-    <Button type="submit">Save changes</Button>
-  </DialogFooter>
-</DialogContent>
-</Dialog>
+  fetchPackageData();
+}, [paymentId]); 

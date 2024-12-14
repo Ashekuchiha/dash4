@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { Check, Edit, Trash2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
+
 interface Product {
   id: number; name: string; price: number, size: any, color: any, style: any, capacity: any, material: any, weight: any
 }
@@ -27,62 +28,63 @@ export default function EditBasket() {
     selectedProducts: [] as { id: number; name: string; price: number; quantity: number, isEditing: boolean }[], // Selected products with quantity
   });
 
-    // Fetch data from the API when the component mounts
-    useEffect(() => {
-      const fetchPackageData = async () => {
-        try {
-          const response = await fetch(`https://api.tamkeen.center/api/packages/${paymentId}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-  console.log(response)
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to fetch package data');
-          }
-  
-          const data = await response.json();
-          console.log("data",data)
-          // Assuming the data structure matches the formData format:
-          // setFormData((prevFormData) => ({ ...prevFormData, ...data }));
-          setFormData({
-            packageName: data.name || '',
-            totalPrice: data.total_price || '',
-            profitLevel1: data.profit_percentage_in_level_1 || '',
-            profitLevel2: data.profit_percentage_in_level_2 || '',
-            profitLevel3: data.profit_percentage_in_level_3 || '',
-            numberOfUses: data.number_of_uses || '',
-            bImages: data.images.map((img: any) => img.image) || [],
-            images: [], // Image upload remains empty unless user uploads
-            products: data.items.map((item: any) => ({
-              id: item.product.id,
-              name: item.product.name,
-              price: parseFloat(item.product.price),
-              size: item.product.size,
-              color: item.product.color,
-              style: item.product.style,
-              capacity: item.product.capacity,
-              material: item.product.material,
-              weight: item.product.weight,
-            })) || [],
-            selectedProducts: data.items.map((item: any) => ({
-              id: item.product.id,
-              name: item.product.name,
-              price: parseFloat(item.price),
-              quantity: item.quantity,
-              isEditing: false, // Initial state of editing
-            })) || [],
-          });
-
-        } catch (error) {
-          console.error('Error fetching package data:');
+  // Fetch data from the API when the component mounts
+  useEffect(() => {
+    const fetchPackageData = async () => {
+      try {
+        const response = await fetch(`https://api.tamkeen.center/api/packages/${paymentId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+console.log(response)
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch package data');
         }
-      };
-  
-      fetchPackageData();
-    }, [paymentId]); 
+
+        const data = await response.json();
+        console.log("data",data)
+        // Assuming the data structure matches the formData format:
+        // setFormData((prevFormData) => ({ ...prevFormData, ...data }));
+        
+        setFormData({
+          packageName: data.name || '',
+          totalPrice: data.total_price || '',
+          profitLevel1: data.profit_percentage_in_level_1 || '',
+          profitLevel2: data.profit_percentage_in_level_2 || '',
+          profitLevel3: data.profit_percentage_in_level_3 || '',
+          numberOfUses: data.number_of_uses || '',
+          bImages: data.images.map((img: any) => img.image) || [],
+          images: [], // Image upload remains empty unless user uploads
+          products: data.items.map((item: any) => ({
+            id: item.product.id,
+            name: item.product.name,
+            price: parseFloat(item.product.price),
+            size: item.product.size,
+            color: item.product.color,
+            style: item.product.style,
+            capacity: item.product.capacity,
+            material: item.product.material,
+            weight: item.product.weight,
+          })) || [],
+          selectedProducts: data.items.map((item: any) => ({
+            id: item.product.id,
+            name: item.product.name,
+            price: parseFloat(item.price),
+            quantity: item.quantity,
+            isEditing: false, // Initial state of editing
+          })) || [],
+        });
+
+      } catch (error) {
+        console.error('Error fetching package data:');
+      }
+    };
+
+    fetchPackageData();
+  }, [paymentId]); 
 
   const [showProductDialog, setShowProductDialog] = useState(false); // State to show product dialog
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
@@ -188,7 +190,6 @@ export default function EditBasket() {
     setFormData({ ...formData, selectedProducts: updatedProducts });
   };
 
-
   const removeImage = (index: number) => {
     const updatedImages = formData.images.filter((_, i) => i !== index);
     setFormData({
@@ -214,10 +215,11 @@ export default function EditBasket() {
         : [...prev, product]
     );
   };
-  
+
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuantity(Number(e.target.value)); // Set the quantity
   };
+
   const convertToBase64 = (files: File[] | null): Promise<(string | null)[]> => {
     console.log("file null " + files?.length);
     return new Promise((resolve, reject) => {
@@ -246,7 +248,6 @@ export default function EditBasket() {
     });
   };
 
-
   const addProductsToTable = () => {
     if (selectedProducts.length > 0) {
       const newProducts = selectedProducts.map((product) => ({
@@ -267,9 +268,7 @@ export default function EditBasket() {
     }
   };
   
-  
   const [submitting, setSubmitting] = useState(false); // Add submitting state
-
 
   // // Remove product from selectedProducts
   // const removeProduct = (index: number) => {
@@ -490,6 +489,7 @@ export default function EditBasket() {
         </div>
 
         {/* Display the uploaded images as previews */}
+        
         {formData.images.length > 0 && (
           <div className="mt-4">
             <h4 className="text-sm font-medium">Uploaded Images</h4>
@@ -510,6 +510,7 @@ export default function EditBasket() {
                   </button>
                 </div>
               ))}
+              {}
             </div>
           </div>
         )}

@@ -43,14 +43,67 @@ export default function EditProduct() {
     itemImages: [] as File[],
   });
   const navigate = useNavigate(); // Initialize navigate
+
+  //fetch data of product by id
   useEffect(() => {
-    async function fetchCategories() {
-      const response = await fetch(`https://api.tamkeen.center/api/products/${paymentId}`);
-      const data = await response.json();
-      console.log("data",data)
-    }
-    fetchCategories();
-  }, []);
+    axios.get(`https://api.tamkeen.center/api/products/${paymentId}`)
+      .then((response) => {
+        const product = response.data.product;
+        const apiVariants = product.variants;
+        const apiCategories = product.categories.map((category) => category.id);
+        console.log(apiCategories)
+        setSelectedCategories(apiCategories)
+        console.log(selectedCategories)
+        // Populate formData with API response
+        setFormData((prevData) => ({
+          ...prevData,
+          productName: product.name || '',
+          productDescription: product.description || '',
+          backgroundImage: product.background_image ? { name: product.background_image } : null,
+          coverImage: product.cover_image ? { name: product.cover_image } : null,
+          itemImages: product.images?.map((image) => ({ name: image })) || [],
+
+        }));
+
+        setVariants(
+          apiVariants.map((variant: any) => ({
+            // color: variant.color || '#fff', // Default to white if color is missing
+            // basePrice: variant.price || 'N/A',
+            // sellingPrice: variant.discounted_price || 'N/A',
+            // size: variant.size || 'N/A',
+            // style: variant.style || 'N/A',
+            // capacity: variant.capacity || 'N/A',
+            // weight: variant.weight || 'N/A',
+            // stock: variant.stock,
+            sellingPrice: variant.discounted_price || 'N/A',
+            basePrice: variant.price || 'N/A',
+            stock_number: variant.trackStockNumber,
+            track_stock: variant.track_stock,
+            barcode: variant.barcode, // Add barcode if available
+            qr_code: variant.qr_code, // Add qr code if available
+            serial_number: variant.serial_number, // Add serial number if available
+            size: variant.size,
+            gender: variant.gender,
+            discount: variant.discount_value,
+            start_date: variant.start_date,
+            end_date: variant.end_date,
+            material: variant.material,
+            weight: variant.weight,
+            style: variant.style,
+            color: variant.color,
+            capacity: variant.capacity,
+            stock: variant.stock,
+            background_image: "", // You can add background image for variants if necessary
+          })))
+        
+
+      })
+      .catch((error) => {
+        console.error('Error fetching product:', error);
+      });
+  }, [paymentId]);
+
+  //fetch category
   useEffect(() => {
     async function fetchCategories() {
       const response = await fetch('https://api.tamkeen.center/api/categories');
@@ -156,7 +209,7 @@ export default function EditProduct() {
         formData.itemImages.map((image: File) => convertToBase64(image))
       );
 
-      console.log("dsfgdfg "+selectedCategories);
+      // console.log("dsfgdfg "+selectedCategories);
 
       // Prepare the API payload
       const apiPayload = {
@@ -193,8 +246,8 @@ export default function EditProduct() {
       const token = localStorage.getItem("token");
 
       // Now send the data to the API using Axios
-      const response = await axios.post(
-        'https://api.tamkeen.center/api/products',
+      const response = await axios.put(
+        `https://api.tamkeen.center/api/products/${paymentId}`,
         apiPayload,
         {
           headers: {
@@ -223,6 +276,7 @@ export default function EditProduct() {
 
     convertToApiFormat(formData, variants);
   };
+
   return (
     <div className="m-2 rounded-lg border-2 bg-white p-6">
       <h1 className="mb-4 text-lg font-medium">General Information</h1>
@@ -361,7 +415,7 @@ export default function EditProduct() {
             }`}
           disabled={loading} // Disable button when loading
         >
-          {loading ? 'Submitting...' : 'Submit'}
+          {loading ? 'Updating...' : 'Update'}
         </button>
 
       </form>
