@@ -1,0 +1,67 @@
+{
+    "name": "Yuli Kramer",
+    "description": "Fuga Veniam incidu",
+    "category_ids": [4,5,6],
+    "cover_image": "image_string",
+    "images": [
+        "image_string",
+        "image_string",
+        "image_string"
+    ],
+    "variants": [
+        {
+            "track_stock": false,
+            "stock_number": "",
+            "barcode": "Exercitation cillum ",
+            "qr_code": "Velit sunt assumend",
+            "serial_number": "Dolores numquam nemo",
+            "size": [
+                "M"
+            ],
+            "gender": [
+                "Female"
+            ],
+            "discount": false,
+            "start_date": "2011-02-08",
+            "end_date": "2015-01-28",
+            "base_price": "43",
+            "selling_price": "42",
+            "material": "Aut recusandae Et m",
+            "weight": "89",
+            "style": "Minima suscipit amet",
+            "color": "#22526f",
+            "capacity": "19",
+            "stock": "77",
+            "background_image": "image_string"
+        },
+        {
+            "track_stock": false,
+            "stock_number": "",
+            "barcode": "Officia alias eum re",
+            "qr_code": "Et quia dolor incidu",
+            "serial_number": "Adipisicing illum i",
+            "size": [
+                "XL",
+                "L",
+                "M",
+                "S"
+            ],
+            "gender": [
+                "Male",
+                "Female"
+            ],
+            "discount": false,
+            "start_date": "2016-02-07",
+            "end_date": "2021-06-22",
+            "base_price": "20",
+            "selling_price": "44",
+            "material": "Aut irure est fugiat",
+            "weight": "95",
+            "style": "Quis expedita aliqui",
+            "color": "#c8994f",
+            "capacity": "55",
+            "stock": "89",
+            "background_image": "image_string"
+        }
+    ]
+}
