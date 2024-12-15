@@ -11,9 +11,10 @@ type DiscountType = 'Percentage' | 'Value';
 
 type AddVariantProps = {
   onSubmitVariant: (variantData: any) => void;
+  sizess: string[];
 };
 
-export default function AddVariant({ onSubmitVariant }: AddVariantProps) {
+export default function AddVariant({ onSubmitVariant,sizess  }: AddVariantProps) {
 
   const [isTracking, setIsTracking] = useState(false);
   const [trackStockNumber, setTrackStockNumber] = useState('');
@@ -37,6 +38,8 @@ export default function AddVariant({ onSubmitVariant }: AddVariantProps) {
   const [serialNumber, setSerialNumber] = useState('');
 
   const sizes = ['S', 'M', 'L', 'XL'];
+  const availableSizes = sizes.filter((size) => !sizess.includes(size));
+
   const genders = ['Male', 'Female', 'Unisex'];
   const discounts = ['Percentage', 'Fixed Amount'];
 
@@ -45,6 +48,7 @@ export default function AddVariant({ onSubmitVariant }: AddVariantProps) {
 
     setSelectedSize(size);
   }
+
   const handleGenderChange = (gender) => setSelectedGender(gender);
   const handleDiscountChange = (discount) => setSelectedDiscountType(discount);
 
@@ -220,7 +224,7 @@ export default function AddVariant({ onSubmitVariant }: AddVariantProps) {
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-gray-700">Size</h3>
               <div className="flex space-x-2">
-                {sizes.map((size) => (
+                {availableSizes.map((size) => (
                   <button
                     key={size}
                     onClick={(e) => handleSizeClick(size, e)} // Passing the event to the handler

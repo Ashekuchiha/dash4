@@ -27,6 +27,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 export default function AddProduct() {
+  const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
+  
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -65,6 +67,15 @@ export default function AddProduct() {
     setVariants((prevVariants) => [...prevVariants, variantData]);
     setIsDialogOpen(false);
   };
+
+  useEffect(() => {
+    if (variants && variants.length > 0) {
+      // Extract sizes when variants change
+      const extractedSizes = variants.map((variant) => variant.size);
+      setSizes(extractedSizes);
+    }
+  }, [variants]);
+  console.log(sizes)
 
   const handleDeleteVariant = (index: number) => {
     setVariants((prevVariants) => prevVariants.filter((_, i) => i !== index));
@@ -342,7 +353,7 @@ export default function AddProduct() {
             <DialogHeader>
               <DialogTitle>Add Variant</DialogTitle>
             </DialogHeader>
-            <AddVariant onSubmitVariant={handleVariantData} />
+            <AddVariant onSubmitVariant={handleVariantData} sizess={sizes}/>
           </DialogContent>
         </Dialog>
 

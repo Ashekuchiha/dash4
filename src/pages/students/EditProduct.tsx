@@ -51,9 +51,7 @@ export default function EditProduct() {
         const product = response.data.product;
         const apiVariants = product.variants;
         const apiCategories = product.categories.map((category) => category.id);
-        console.log(apiCategories)
         setSelectedCategories(apiCategories)
-        console.log(selectedCategories)
         // Populate formData with API response
         setFormData((prevData) => ({
           ...prevData,
@@ -64,7 +62,7 @@ export default function EditProduct() {
           itemImages: product.images?.map((image) => ({ name: image })) || [],
 
         }));
-console.log("hihihi",apiVariants)
+
         setVariants(
           apiVariants.map((variant: any) => ({
             id: variant.id,
@@ -72,9 +70,9 @@ console.log("hihihi",apiVariants)
             basePrice: variant.price || 'N/A',
             stock_number: variant.track_stock_number,
             track_stock: variant.track_stock,
-            barcode: variant.barcode || '', // Optional: Default empty string
-            qr_code: variant.qr_code || '', // Optional: Default empty string
-            serial_number: variant.serial_number || '', // Optional: Default empty string
+            barcode: variant.barcode || '',
+            qr_code: variant.qr_code || '',
+            serial_number: variant.serial_number || '',
             size: variant.size || 'N/A',
             gender: variant.gender || 'N/A',
             discount: variant.discount_value || null,
@@ -88,14 +86,13 @@ console.log("hihihi",apiVariants)
             stock: variant.stock || 0,
             background_image: variant.background_image || '', 
           })))
-        console.log("hhh",variants)
-
       })
       .catch((error) => {
         console.error('Error fetching product:', error);
       });
   }, [paymentId]);
 
+  
   //fetch category
   useEffect(() => {
     async function fetchCategories() {
@@ -202,8 +199,6 @@ console.log("hihihi",apiVariants)
         formData.itemImages.map((image: File) => convertToBase64(image))
       );
 
-      // console.log("dsfgdfg "+selectedCategories);
-
       // Prepare the API payload
       const apiPayload = {
         name: formData.productName,
@@ -236,7 +231,7 @@ console.log("hihihi",apiVariants)
         }))
       };
 
-      console.log("Prepared API Payload:", apiPayload);
+      console.log("Prepared edit API Payload:", apiPayload);
       const token = localStorage.getItem("token");
 
       // Now send the data to the API using Axios
@@ -252,11 +247,11 @@ console.log("hihihi",apiVariants)
         }
       );
 
-      toast.success('Product submitted successfully!');
+      toast.success('Product Updated successfully!');
       navigate('/productsList'); // Redirect to product list
 
     } catch (error) {
-      toast.error('Error submitting the product.');
+      toast.error('Error Updating the product.');
       console.error('API Error:', error);
     } finally {
       setLoading(false); // Set loading to false after API call completes
