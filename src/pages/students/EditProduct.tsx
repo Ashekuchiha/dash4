@@ -28,6 +28,9 @@ import { useNavigate, useParams } from 'react-router-dom'; // Import useNavigate
 import AddVariant from '../addProduct/AddVariant';
 
 export default function EditProduct() {
+  const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
+  const [isImage, setIsImage] = useState(true);
+
   const {paymentId} =useParams();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -49,6 +52,9 @@ export default function EditProduct() {
     axios.get(`https://api.tamkeen.center/api/products/${paymentId}`)
       .then((response) => {
         const product = response.data.product;
+        console.log(product)
+        console.log(product.cover_image)
+        console.log(product.background_image)
         const apiVariants = product.variants;
         const apiCategories = product.categories.map((category) => category.id);
         setSelectedCategories(apiCategories)
@@ -57,12 +63,24 @@ export default function EditProduct() {
           ...prevData,
           productName: product.name || '',
           productDescription: product.description || '',
-          backgroundImage: product.background_image ? { name: product.background_image } : null,
-          coverImage: product.cover_image ? { name: product.cover_image } : null,
+          // backgroundImage: product.background_image ? { name: product.background_image } : null,
+
+          backgroundImage: product.background_image.startsWith("storage")
+          ? `https://api.tamkeen.center/${product.background_image}`
+          :  product.background_image,
+
+          // coverImage: product.cover_image ? { name: product.cover_image } : null,
+          coverImage: product.cover_image.startsWith("storage")
+          ? `https://api.tamkeen.center/${product.cover_image}`
+          :  product.cover_image,
+
           itemImages: product.images?.map((image) => ({ name: image })) || [],
+          // itemImages: product.images.startsWith("storage")
+          // ? `https://api.tamkeen.center/${product.images}`
+          // :  product.images,
 
         }));
-
+console.log(formData.itemImages)
         setVariants(
           apiVariants.map((variant: any) => ({
             id: variant.id,
@@ -111,6 +129,23 @@ export default function EditProduct() {
     }
     fetchCategories();
   }, [paymentId]);
+//image and size
+  useEffect(() => {
+    if (variants && variants.length > 0) {
+      // Extract sizes when variants change
+      const extractedSizes = variants.map((variant) => variant.size);
+      setSizes(extractedSizes);
+
+      if (variants.some((variant) => variant.image)) {
+        setIsImage(false);
+      } else {
+        setIsImage(true);
+      }
+    }
+    console.log(isImage)
+
+  }, [variants]);
+
 
   const handleVariantData = (variantData: any) => {
     console.log(variantData)
@@ -321,6 +356,12 @@ export default function EditProduct() {
             handleImageChange('backgroundImage', image)
           }
         />
+        
+        <img
+          src={formData.backgroundImage} // Display the Base64 image
+          alt="Uploaded"
+          className="w-24 h-24 object-cover rounded-md"
+        />
         <ImageUpload
           label="Upload Cover Image"
           name="coverImage"
@@ -329,12 +370,26 @@ export default function EditProduct() {
             handleImageChange('coverImage', image)
           }
         />
-
+        <img
+          src={formData.coverImage} // Display the Base64 image
+          alt="Uploaded"
+          className="w-24 h-24 object-cover rounded-md"
+        />
         <label className="block text-lg font-semibold text-black pb-4">
           Upload Item Images
         </label>
         <DynamicImageUpload onChange={handleDynamicImagesChange} />
-
+        <div className='flex gap-1 my-2'>
+        {formData.itemImages &&
+  formData.itemImages.map((one, index) => (
+          <img
+      key={index}
+      src={`https://api.tamkeen.center/${one.name}`}
+      alt="Uploaded"
+      className="w-24 h-24 object-cover rounded-md"
+    />
+  ))}
+</div>
         {/* Variants Table */}
         <Table className="mt-4">
           <TableHeader>
@@ -394,7 +449,7 @@ export default function EditProduct() {
             <DialogHeader>
               <DialogTitle>Add Variant</DialogTitle>
             </DialogHeader>
-            <AddVariant onSubmitVariant={handleVariantData} />
+            <AddVariant onSubmitVariant={handleVariantData} sizess={sizes} isImageee={isImage}/>
           </DialogContent>
         </Dialog>
 

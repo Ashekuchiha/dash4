@@ -28,7 +28,7 @@ export default function EditBasket() {
     selectedProducts: [] as { id: number; name: string; price: number; quantity: number, isEditing: boolean }[], // Selected products with quantity
   });
 
-  // Fetch data from the API when the component mounts
+  // Fetch data from the API when the component mounts by id
   useEffect(() => {
     const fetchPackageData = async () => {
       try {
@@ -38,7 +38,6 @@ export default function EditBasket() {
             'Authorization': `Bearer ${token}`,
           },
         });
-console.log(response)
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to fetch package data');
@@ -77,7 +76,7 @@ console.log(response)
             isEditing: false, // Initial state of editing
           })) || [],
         });
-
+console.log(formData)
       } catch (error) {
         console.error('Error fetching package data:');
       }
@@ -367,6 +366,7 @@ console.log(response)
     // Proceed to close the dialog
     closeProductDialog();
   };
+  console.log(formData.bImages)
 
   return (
     <form className="flex flex-col gap-8 p-4">
@@ -456,6 +456,7 @@ console.log(response)
           />
         </label>
       </div>
+
       {/* Image Upload Section */}
       <div className="flex flex-col mb-4">
         <div
@@ -510,10 +511,19 @@ console.log(response)
                   </button>
                 </div>
               ))}
-              {}
             </div>
           </div>
         )}
+
+{formData.bImages &&
+  formData.bImages.map((one, index) => (
+          <img
+      key={index}
+      src={`https://api.tamkeen.center/${one}`}
+      alt="Uploaded"
+      className="w-24 h-24 object-cover rounded-md m-1"
+    />
+  ))}
       </div>
 
       {/* Product Table */}
@@ -723,8 +733,6 @@ console.log(response)
           </div>
         </div>
       )}
-
-
 
 
     </form>

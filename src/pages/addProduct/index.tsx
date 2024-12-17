@@ -28,7 +28,8 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 export default function AddProduct() {
   const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
-  
+  const [isImage, setIsImage] = useState(true);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -44,6 +45,7 @@ export default function AddProduct() {
   });
   const navigate = useNavigate(); // Initialize navigate
 
+//get category from api
   useEffect(() => {
     async function fetchCategories() {
       const response = await fetch('https://api.tamkeen.center/api/categories');
@@ -73,9 +75,16 @@ export default function AddProduct() {
       // Extract sizes when variants change
       const extractedSizes = variants.map((variant) => variant.size);
       setSizes(extractedSizes);
+
+      if (variants.some((variant) => variant.image)) {
+        setIsImage(false);
+      } else {
+        setIsImage(true);
+      }
     }
+    console.log(isImage)
+
   }, [variants]);
-  console.log(sizes)
 
   const handleDeleteVariant = (index: number) => {
     setVariants((prevVariants) => prevVariants.filter((_, i) => i !== index));
@@ -157,9 +166,12 @@ export default function AddProduct() {
       const itemImagesBase64 = await Promise.all(
         formData.itemImages.map((image: File) => convertToBase64(image))
       );
+      const itemImagesBase642 = await Promise.all (
+        variants.map((variant) => convertToBase64(variant.image))
+      );
 
-      console.log("dsfgdfg "+selectedCategories);
-
+      console.log("dsfgdfg ",itemImagesBase642);
+      
       // Prepare the API payload
       const apiPayload = {
         name: formData.productName,
@@ -168,7 +180,8 @@ export default function AddProduct() {
         cover_image: coverImageBase64,
         background_image: backgroundImageBase64,
         images: itemImagesBase64, // All item images in base64 format
-        variants: variants.map((variant: any) => ({
+        variants: variants.map((variant: any) => (
+          {
           track_stock: variant.isTracking,
           stock_number: variant.trackStockNumber,
           barcode: variant.barcode, // Add barcode if available
@@ -187,7 +200,8 @@ export default function AddProduct() {
           color: variant.color,
           capacity: variant.capacity,
           stock: variant.stock,
-          background_image: "", // You can add background image for variants if necessary
+          background_image:  itemImagesBase642[0],
+
         }))
       };
 
@@ -353,7 +367,7 @@ export default function AddProduct() {
             <DialogHeader>
               <DialogTitle>Add Variant</DialogTitle>
             </DialogHeader>
-            <AddVariant onSubmitVariant={handleVariantData} sizess={sizes}/>
+            <AddVariant onSubmitVariant={handleVariantData} sizess={sizes} isImageee={isImage}/>
           </DialogContent>
         </Dialog>
 

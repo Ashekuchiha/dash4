@@ -12,9 +12,10 @@ type DiscountType = 'Percentage' | 'Value';
 type AddVariantProps = {
   onSubmitVariant: (variantData: any) => void;
   sizess: string[];
+  isImageee:boolean;
 };
 
-export default function AddVariant({ onSubmitVariant,sizess  }: AddVariantProps) {
+export default function AddVariant({ onSubmitVariant,sizess,isImageee }: AddVariantProps) {
 
   const [isTracking, setIsTracking] = useState(false);
   const [trackStockNumber, setTrackStockNumber] = useState('');
@@ -114,7 +115,7 @@ export default function AddVariant({ onSubmitVariant,sizess  }: AddVariantProps)
         qr_code:qrCode,
         serial_number:serialNumber,
       };
-
+console.log(formData.coverImage1)
       console.log(variantData)
       // Pass the data to the parent component
       onSubmitVariant(variantData);
@@ -445,17 +446,20 @@ export default function AddVariant({ onSubmitVariant,sizess  }: AddVariantProps)
             </div>
           </div>
         </div>
+{isImageee && 
 
-        <div>
-          <ImageUpload
-            label="Upload Cover Image"
-            name="coverImage1"
-            ww={50}
-            onImageChange={(image: File | null) => handleImageChange('coverImage1', image)}
-            single={true}
-          />
+<div>
+<ImageUpload
+  label="Upload Cover Image"
+  name="coverImage1"
+  ww={50}
+  onImageChange={(image: File | null) => handleImageChange('coverImage1', image)}
+  single={true}
+/>
 
-        </div>
+</div>
+}
+
 
       </div>
 
