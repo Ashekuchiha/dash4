@@ -23,6 +23,7 @@ import PrivateRoute from './PrivateRoutes';
 import EditBannerForm from '@/pages/form/EditBanner';
 import EditBasket from '@/pages/students/EditBasket';
 import EditProduct from '@/pages/students/EditProduct';
+// import EditProduct from '@/pages/students/EditProductD';
 const DashboardLayout = lazy(
   () => import('@/components/layout/dashboard-layout')
 );
