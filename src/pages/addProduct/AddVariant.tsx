@@ -1,3 +1,4 @@
+import DynamicImageUpload from '@/components/shared/ashik/DynamicImageUpload';
 import ImageUpload from '@/components/shared/ashik/ImageUpload';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,15 +12,17 @@ type DiscountType = 'Percentage' | 'Value';
 
 type AddVariantProps = {
   onSubmitVariant: (variantData: any) => void;
-  sizess: string[];
-  isImageee:boolean;
+  // sizess: string[];
+  // isImageee:boolean;
 };
 
-export default function AddVariant({ onSubmitVariant,sizess,isImageee }: AddVariantProps) {
+export default function AddVariant({ onSubmitVariant }: AddVariantProps) {
 
   const [isTracking, setIsTracking] = useState(false);
   const [trackStockNumber, setTrackStockNumber] = useState('');
-  const [selectedSize, setSelectedSize] = useState(null);
+  // const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+
   const [selectedGender, setSelectedGender] = useState(null);
   const [isDiscount, setIsDiscount] = useState(false);
   const [selectedDiscountType, setSelectedDiscountType] = useState(null);
@@ -32,37 +35,65 @@ export default function AddVariant({ onSubmitVariant,sizess,isImageee }: AddVari
   const [capacity, setCapacity] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [weight, setWeight] = useState('');
-  const [color, setColor] = useState('');
+  const [color, setColor] = useState('#000000');
   const [stock, setStock] = useState('');
   const [barcode, setBarcode] = useState('');
   const [qrCode, setQrCode] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
 
   const sizes = ['S', 'M', 'L', 'XL'];
-  const availableSizes = sizes.filter((size) => !sizess.includes(size));
+  // const availableSizes = sizes.filter((size) => !sizess.includes(size));
 
   const genders = ['Male', 'Female', 'Unisex'];
   const discounts = ['Percentage', 'Fixed Amount'];
 
-  const handleSizeClick = (size,e) => {
-    e.preventDefault();
+  // const handleSizeClick = (size,e) => {
+  //   e.preventDefault();
 
-    setSelectedSize(size);
-  }
+  //   setSelectedSize(size);
+  // }
+  const handleSizeClick = (size, e) => {
+    e.preventDefault();
+  
+    setSelectedSizes((prevSelectedSizes) => {
+      // Check if the size is already selected
+      if (prevSelectedSizes.includes(size)) {
+        // Remove the size if it's already selected
+        return prevSelectedSizes.filter((s) => s !== size);
+      } else {
+        // Add the size if it's not selected
+        return [...prevSelectedSizes, size];
+      }
+    });
+  };
 
   const handleGenderChange = (gender) => setSelectedGender(gender);
   const handleDiscountChange = (discount) => setSelectedDiscountType(discount);
 
   // Function to handle image selection
+  // const [formData, setFormData] = useState<{
+  //   coverImage1: File | null;
+  // }>({
+  //   coverImage1: null,
+  // });
+
   const [formData, setFormData] = useState<{
     coverImage1: File | null;
+    itemImages: File[]; // Array to store multiple images
   }>({
     coverImage1: null,
+    itemImages: [], // Initialize with an empty array
   });
+  
+  const handleDynamicImagesChange = (images: File[]) => {
+    setFormData((prev) => ({ ...prev, itemImages: images }));
+  };
+  
 
   const handleImageChange = (name: string, image: File | null) => {
     setFormData((prev) => ({ ...prev, [name]: image }));
   };
+
   const [errors, setErrors] = useState<any>({});  // Error state for validation
 
   const validateForm = () => {
@@ -77,23 +108,67 @@ export default function AddVariant({ onSubmitVariant,sizess,isImageee }: AddVari
     if (isTracking && !trackStockNumber) {
       newErrors.push("Track Stock Number is required");
     }
-
-    
- 
-
     return newErrors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+//   const handleSubmit = (e: React.FormEvent) => {
+//     e.preventDefault();
 
-    const formErrors = validateForm();
+//     const formErrors = validateForm();
 
-    if (formErrors.length > 0) {
-      formErrors.forEach((error: string) => toast.error(error));
-    } else {
+//     if (formErrors.length > 0) {
+//       formErrors.forEach((error: string) => toast.error(error));
+//     } else {
+//       const variantData = {
+//         size: selectedSizes,
+//         gender: selectedGender,
+//         basePrice,
+//         sellingPrice,
+//         weight,
+//         stock,
+//         isTracking,
+//         trackStockNumber,
+//         isDiscount,
+//         discountType: selectedDiscountType,
+//         discountValue,
+//         startDate,
+//         endDate,
+//         material,
+//         style,
+//         capacity,
+//         color,
+//         image: formData.coverImage1,
+//         barcode,
+//         qr_code:qrCode,
+//         serial_number:serialNumber,
+//       };
+// console.log(formData.coverImage1)
+//       console.log(variantData)
+//       // Pass the data to the parent component
+//       onSubmitVariant(variantData);
+
+//       // Optionally reset the form
+//       toast.success("Variant added successfully!");
+//     }
+    
+//   };
+
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const formErrors = validateForm();
+
+  if (formErrors.length > 0) {
+    formErrors.forEach((error: string) => toast.error(error));
+  } else {
+    if (selectedSizes.length === 0) {
+      toast.error("Please select at least one size.");
+      return;
+    }
+
+    selectedSizes.forEach((size) => {
       const variantData = {
-        size: selectedSize,
+        size, // Set the current size
         gender: selectedGender,
         basePrice,
         sellingPrice,
@@ -110,22 +185,21 @@ export default function AddVariant({ onSubmitVariant,sizess,isImageee }: AddVari
         style,
         capacity,
         color,
-        image: formData.coverImage1,
+        // image: formData.coverImage1,
+        itemImages: formData.itemImages, // Array of multiple images
         barcode,
-        qr_code:qrCode,
-        serial_number:serialNumber,
+        qr_code: qrCode,
+        serial_number: serialNumber,
       };
-console.log(formData.coverImage1)
-      console.log(variantData)
-      // Pass the data to the parent component
-      onSubmitVariant(variantData);
 
-      // Optionally reset the form
-      toast.success("Variant added successfully!");
-    }
-    
-  };
+      console.log(variantData); // Log each variant data
+      onSubmitVariant(variantData); // Submit each variant data
+    });
 
+    // Optionally reset the form
+    toast.success("Variants added successfully!");
+  }
+};
   return (
     <form className="flex h-full w-full flex-col gap-3 p-6">
 
@@ -225,7 +299,7 @@ console.log(formData.coverImage1)
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-gray-700">Size</h3>
               <div className="flex space-x-2">
-                {availableSizes.map((size) => (
+                {/* {sizes.map((size) => (
                   <button
                     key={size}
                     onClick={(e) => handleSizeClick(size, e)} // Passing the event to the handler
@@ -236,7 +310,21 @@ console.log(formData.coverImage1)
                   >
                     {size}
                   </button>
-                ))}
+                ))} */}
+                    {sizes.map((size) => (
+                      <button
+                        key={size}
+                        onClick={(e) => handleSizeClick(size, e)} // Passing the event to the handler
+                        className={`rounded-md border px-4 py-2 text-sm font-medium ${
+                          selectedSizes.includes(size)
+                            ? 'bg-gray-800 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+
               </div>
             </div>
             <div className="space-y-2">
@@ -446,20 +534,15 @@ console.log(formData.coverImage1)
             </div>
           </div>
         </div>
-{isImageee && 
-
-<div>
-<ImageUpload
-  label="Upload Cover Image"
-  name="coverImage1"
-  ww={50}
-  onImageChange={(image: File | null) => handleImageChange('coverImage1', image)}
-  single={true}
-/>
-
-</div>
-}
-
+        <div>
+        {/* <ImageUpload
+          label="Upload Cover Image"
+          name="coverImage1"
+          ww={50}
+          onImageChange={(image: File | null) => handleImageChange('coverImage1', image)}
+          single={true}
+        /> */}
+        <DynamicImageUpload onChange={handleDynamicImagesChange} />
 
       </div>
 
@@ -470,6 +553,7 @@ console.log(formData.coverImage1)
         Add Variant
       </button>
       <div className="absolute top-0 right-0">
+      </div>
       </div>
     </form>
   );

@@ -27,8 +27,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 export default function AddProduct() {
-  const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
-  const [isImage, setIsImage] = useState(true);
+  // const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
+  // const [isImage, setIsImage] = useState(true);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -70,21 +70,22 @@ export default function AddProduct() {
     setIsDialogOpen(false);
   };
 
-  useEffect(() => {
-    if (variants && variants.length > 0) {
-      // Extract sizes when variants change
-      const extractedSizes = variants.map((variant) => variant.size);
-      setSizes(extractedSizes);
+  //image and size
+  // useEffect(() => {
+  //   if (variants && variants.length > 0) {
+  //     // Extract sizes when variants change
+  //     // const extractedSizes = variants.map((variant) => variant.size);
+  //     // setSizes(extractedSizes);
 
-      if (variants.some((variant) => variant.image)) {
-        setIsImage(false);
-      } else {
-        setIsImage(true);
-      }
-    }
-    console.log(isImage)
+  //     if (variants.some((variant) => variant.image)) {
+  //       setIsImage(false);
+  //     } else {
+  //       setIsImage(true);
+  //     }
+  //   }
+  //   console.log(isImage)
 
-  }, [variants]);
+  // }, [variants]);
 
   const handleDeleteVariant = (index: number) => {
     setVariants((prevVariants) => prevVariants.filter((_, i) => i !== index));
@@ -166,10 +167,23 @@ export default function AddProduct() {
       const itemImagesBase64 = await Promise.all(
         formData.itemImages.map((image: File) => convertToBase64(image))
       );
-      const itemImagesBase642 = await Promise.all (
-        variants.map((variant) => convertToBase64(variant.image))
-      );
 
+      // const itemImagesBase642 = await Promise.all (
+      //   variants.map((variant) => convertToBase64(variant.image))
+      // );
+
+      const itemImagesBase642 = await Promise.all(
+        variants.map(async (variant) => {
+          if (Array.isArray(variant.itemImages)) {
+            // Convert all images in the itemImages array to Base64
+            const base64Images = await Promise.all(
+              variant.itemImages.map((image) => convertToBase64(image))
+            );
+            return base64Images; // Return an array of Base64 strings
+          }
+          return []; // Return an empty array if no itemImages
+        })
+      );
       console.log("dsfgdfg ",itemImagesBase642);
       
       // Prepare the API payload
@@ -200,7 +214,7 @@ export default function AddProduct() {
           color: variant.color,
           capacity: variant.capacity,
           stock: variant.stock,
-          background_image:  itemImagesBase642[0],
+          images:  itemImagesBase642[0],
 
         }))
       };
@@ -367,7 +381,7 @@ export default function AddProduct() {
             <DialogHeader>
               <DialogTitle>Add Variant</DialogTitle>
             </DialogHeader>
-            <AddVariant onSubmitVariant={handleVariantData} sizess={sizes} isImageee={isImage}/>
+            <AddVariant onSubmitVariant={handleVariantData}/>
           </DialogContent>
         </Dialog>
 

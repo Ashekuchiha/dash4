@@ -12,7 +12,6 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table';
-// import AddVariant from './AddVariant';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -28,8 +27,8 @@ import { useNavigate, useParams } from 'react-router-dom'; // Import useNavigate
 import AddVariant from '../addProduct/AddVariant';
 
 export default function EditProduct() {
-  const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
-  const [isImage, setIsImage] = useState(true);
+  // const [sizes, setSizes] = useState<string[]>([]); // State for storing sizes
+  // const [isImage, setIsImage] = useState(true);
 
   const {paymentId} =useParams();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -46,6 +45,25 @@ export default function EditProduct() {
     itemImages: [] as File[],
   });
   const navigate = useNavigate(); // Initialize navigate
+
+  //fetch category
+  useEffect(() => {
+    async function fetchCategories() {
+      const response = await fetch('https://api.tamkeen.center/api/categories');
+      const data = await response.json();
+      setCategories(
+        data.map((category) => ({
+          id: category.id,
+          name: category.category_name,
+          children: category.children?.map((child) => ({
+            id: child.id,
+            name: child.category_name,
+          })),
+        }))
+      );
+    }
+    fetchCategories();
+  }, [paymentId]);
 
   //fetch data of product by id
   useEffect(() => {
@@ -65,14 +83,16 @@ export default function EditProduct() {
           productDescription: product.description || '',
           // backgroundImage: product.background_image ? { name: product.background_image } : null,
 
-          backgroundImage: product.background_image.startsWith("storage")
-          ? `https://api.tamkeen.center/${product.background_image}`
-          :  product.background_image,
+          // backgroundImage: product.background_image.startsWith("storage")
+          // ? `https://api.tamkeen.center/${product.background_image}`
+          // :  product.background_image,
+          backgroundImage:product.background_image,
 
           // coverImage: product.cover_image ? { name: product.cover_image } : null,
-          coverImage: product.cover_image.startsWith("storage")
-          ? `https://api.tamkeen.center/${product.cover_image}`
-          :  product.cover_image,
+          // coverImage: product.cover_image.startsWith("storage")
+          // ? `https://api.tamkeen.center/${product.cover_image}`
+          // :  product.cover_image,
+          coverImage: product.cover_image ,
 
           itemImages: product.images?.map((image) => ({ name: image })) || [],
           // itemImages: product.images.startsWith("storage")
@@ -80,29 +100,28 @@ export default function EditProduct() {
           // :  product.images,
 
         }));
-console.log(formData.itemImages)
         setVariants(
           apiVariants.map((variant: any) => ({
             id: variant.id,
-            sellingPrice: variant.discounted_price || 'N/A',
-            basePrice: variant.price || 'N/A',
+            sellingPrice: variant.discounted_price || '0',
+            basePrice: variant.price || '0',
             stock_number: variant.track_stock_number,
             track_stock: variant.track_stock,
             barcode: variant.barcode || '',
             qr_code: variant.qr_code || '',
             serial_number: variant.serial_number || '',
-            size: variant.size || 'N/A',
-            gender: variant.gender || 'N/A',
+            size: variant.size || '0',
+            gender: variant.gender || '0',
             discount: variant.discount_value || null,
             start_date: variant.start_date || null,
             end_date: variant.end_date || null,
-            material: variant.material || 'N/A',
-            weight: variant.weight || 'N/A',
-            style: variant.style || 'N/A',
-            color: variant.color || 'N/A',
-            capacity: variant.capacity || 'N/A',
+            material: variant.material || '0',
+            weight: variant.weight || '0',
+            style: variant.style || '0',
+            color: variant.color || '0',
+            capacity: variant.capacity || '0',
             stock: variant.stock || 0,
-            background_image: variant.background_image || '', 
+            images: variant.images || '', 
           })))
       })
       .catch((error) => {
@@ -110,41 +129,25 @@ console.log(formData.itemImages)
       });
   }, [paymentId]);
 
-  
-  //fetch category
-  useEffect(() => {
-    async function fetchCategories() {
-      const response = await fetch('https://api.tamkeen.center/api/categories');
-      const data = await response.json();
-      setCategories(
-        data.map((category) => ({
-          id: category.id,
-          name: category.category_name,
-          children: category.children?.map((child) => ({
-            id: child.id,
-            name: child.category_name,
-          })),
-        }))
-      );
-    }
-    fetchCategories();
-  }, [paymentId]);
+  console.log(formData)
+  console.log(variants)
+
 //image and size
-  useEffect(() => {
-    if (variants && variants.length > 0) {
-      // Extract sizes when variants change
-      const extractedSizes = variants.map((variant) => variant.size);
-      setSizes(extractedSizes);
+  // useEffect(() => {
+  //   if (variants && variants.length > 0) {
+  //     // Extract sizes when variants change
+  //     const extractedSizes = variants.map((variant) => variant.size);
+  //     setSizes(extractedSizes);
 
-      if (variants.some((variant) => variant.image)) {
-        setIsImage(false);
-      } else {
-        setIsImage(true);
-      }
-    }
-    console.log(isImage)
+  //     if (variants.some((variant) => variant.image)) {
+  //       setIsImage(false);
+  //     } else {
+  //       setIsImage(true);
+  //     }
+  //   }
+  //   console.log(isImage)
 
-  }, [variants]);
+  // }, [variants]);
 
 
   const handleVariantData = (variantData: any) => {
@@ -224,24 +227,27 @@ console.log(formData.itemImages)
 
   // Function to prepare API payload
   const convertToApiFormat = async (formData: any, variants: any) => {
+    console.log("formdata,variants",formData,variants)
     try {
       // Convert images to base64 asynchronously]
       setLoading(true); // Set loading to true before starting API call
 
       const coverImageBase64 = await convertToBase64(formData.coverImage);
+
       const backgroundImageBase64 = await convertToBase64(formData.backgroundImage);
       const itemImagesBase64 = await Promise.all(
         formData.itemImages.map((image: File) => convertToBase64(image))
       );
 
+console.log(formData.background_image)
       // Prepare the API payload
       const apiPayload = {
         name: formData.productName,
         description: formData.productDescription,
         category_ids: selectedCategories, // Selected categories
-        cover_image: coverImageBase64,
-        background_image: backgroundImageBase64,
-        images: itemImagesBase64, // All item images in base64 format
+        cover_image: formData.coverImage?formData.coverImage.name:coverImageBase64,
+        background_image: formData.backgroundImage? formData.backgroundImage.name: backgroundImageBase64,
+        images: formData.itemImages?formData.itemImages:itemImagesBase64, // All item images in base64 format
         variants: variants.map((variant: any) => ({
           id:variant.id,
           track_stock: variant.isTracking,
@@ -262,7 +268,7 @@ console.log(formData.itemImages)
           color: variant.color,
           capacity: variant.capacity,
           stock: variant.stock,
-          background_image: "", // You can add background image for variants if necessary
+          images: variant.images, // You can add background image for variants if necessary
         }))
       };
 
@@ -295,6 +301,7 @@ console.log(formData.itemImages)
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    console.log(formData)
 
     if (!validate()) return;
 
@@ -358,8 +365,9 @@ console.log(formData.itemImages)
         />
         
         <img
-          src={formData.backgroundImage} // Display the Base64 image
-          alt="Uploaded"
+          // src={formData.backgroundImage} // Display the Base64 image
+          src={`https://api.tamkeen.center/${formData.backgroundImage}`}
+          alt="new image added"
           className="w-24 h-24 object-cover rounded-md"
         />
         <ImageUpload
@@ -371,8 +379,8 @@ console.log(formData.itemImages)
           }
         />
         <img
-          src={formData.coverImage} // Display the Base64 image
-          alt="Uploaded"
+          src={`https://api.tamkeen.center/${formData.coverImage}`} // Display the Base64 image
+          alt="new image added"
           className="w-24 h-24 object-cover rounded-md"
         />
         <label className="block text-lg font-semibold text-black pb-4">
@@ -385,7 +393,7 @@ console.log(formData.itemImages)
           <img
       key={index}
       src={`https://api.tamkeen.center/${one.name}`}
-      alt="Uploaded"
+      alt="new image added"
       className="w-24 h-24 object-cover rounded-md"
     />
   ))}
@@ -449,7 +457,7 @@ console.log(formData.itemImages)
             <DialogHeader>
               <DialogTitle>Add Variant</DialogTitle>
             </DialogHeader>
-            <AddVariant onSubmitVariant={handleVariantData} sizess={sizes} isImageee={isImage}/>
+            <AddVariant onSubmitVariant={handleVariantData}/>
           </DialogContent>
         </Dialog>
 
